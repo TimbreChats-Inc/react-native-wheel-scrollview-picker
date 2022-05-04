@@ -4,6 +4,7 @@ import {
   NativeScrollEvent,
   NativeSyntheticEvent,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -53,6 +54,7 @@ export type ScrollPickerProps = {
   // tried using ComponentType<ScrollViewProps & { ref: React.RefObject<ScrollView> }>
   // but ScrollView component from react-native-gesture=handler is not compatible with this.
   scrollViewComponent?: any;
+  tapToSelect?: boolean;
 };
 
 export default function ScrollPicker({
@@ -122,9 +124,22 @@ export default function ScrollPicker({
     );
 
     return (
-      <View style={[styles.itemWrapper, { height: itemHeight }]} key={index}>
+      <Pressable
+        style={[styles.itemWrapper, { height: itemHeight }]}
+        key={index}
+        onPress={() => {
+          if (props.tapToSelect) {
+            sView?.current?.scrollTo({ y: index * itemHeight });
+            if (props.onValueChange) {
+              const selectedValue = props.dataSource[index];
+              setSelectedIndex(index);
+              props.onValueChange(selectedValue, index);
+            }
+          }
+        }}
+      >
         {item}
-      </View>
+      </Pressable>
     );
   };
   const scrollFix = useCallback(
